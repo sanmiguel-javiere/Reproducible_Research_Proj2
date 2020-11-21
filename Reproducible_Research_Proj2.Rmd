@@ -1,0 +1,18 @@
+---
+title: "Reproducible_Research_Proj2"
+author: "JESTO"
+date: "11/20/2020"
+output: html_document
+---
+
+This project will look up to the impact of severe weather events on people and the economy of the United States
+=========================================================================================================
+
+### Need to load the necessary packages.  knirt, dplyr and ggplot2 
+
+```{r packakes}
+library(knitr)
+library(dplyr)
+library(ggplot2)
+```
+
