@@ -34,3 +34,54 @@ head(StormData)
 str(StormData)
 
 ```
+
+### Select variables of interest
+Weather Event
+        * EVTYPE
+Personal and Health Impact
+        * FATALITIES
+        * INJURIES
+Economic Impact
+        * PROPDMG
+        * PROPDMGEXP
+        * CROPDMG
+        * CROPDMGEXP
+```{r select variables, cache=TRUE}
+StormDataAnalysis <- subset(StormData, select=c(EVTYPE, FATALITIES, INJURIES, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP))
+head(StormDataAnalysis)
+tail(StormDataAnalysis)
+```
+
+
+### Determine the total number of Injuries and fatalities per weather event by creating a separate data frames 
+```{r total fatalities and injuries}
+TotalFatalities <- StormDataAnalysis %>% group_by(EVTYPE) %>% summarise(Fatalities=sum(FATALITIES, na.rm = TRUE))
+TotalFatalities <- TotalFatalities %>% arrange(desc(Fatalities))
+dim(TotalFatalities)
+head(TotalFatalities, n=10)
+
+TotalInjuries <- StormDataAnalysis %>% group_by(EVTYPE) %>% summarise(Injuries=sum(INJURIES, na.rm = TRUE))
+TotalInjuries <- TotalInjuries %>% arrange(desc(Injuries))
+dim(TotalInjuries)
+head(TotalInjuries, n=10)
+```
+
+
+### Determine the total economical impact for each weather event in Millions of Dollars and creating separate data frames for property damage and crop damage
+```{r }
+### Convert units from "letters" to dollars
+ 
+StormDataAnalysis$PROPDMGEXP <- gsub(is.na(StormDataAnalysis$PROPDMGEXP), 0, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE) # NA's considered as 0 dollars
+StormDataAnalysis$PROPDMGEXP <- gsub("", 1, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE) # No letter considered as  dollars
+StormDataAnalysis$PROPDMGEXP <- gsub("[Mm]", 1e+06, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$PROPDMGEXP <- gsub("[Kk]", 1000, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$PROPDMGEXP <- gsub("[Bb]", 1e+09, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$PROPDMGEXP <- as.numeric(StormDataAnalysis$PROPDMGEXP)
+StormDataAnalysis$CROPDMGEXP <- gsub(is.na(StormDataAnalysis$CROPDMGEXP), 0, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE) # NA's considered as 0 dollars
+StormDataAnalysis$CROPDMGEXP <- gsub("", 1, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE) # No letter considered as  dollars
+StormDataAnalysis$CROPDMGEXP <- gsub("[Mm]", 1e+06, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$CROPDMGEXP <- gsub("[Kk]", 1000, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$CROPDMGEXP <- gsub("[Bb]", 1e+09, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$CROPDMGEXP <- as.numeric(StormDataAnalysis$CROPDMGEXP)
+
+```

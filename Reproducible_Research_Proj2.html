@@ -489,6 +489,93 @@ dim(StormData)</code></pre>
 ##  $ REMARKS   : chr  &quot;&quot; &quot;&quot; &quot;&quot; &quot;&quot; ...
 ##  $ REFNUM    : num  1 2 3 4 5 6 7 8 9 10 ...</code></pre>
 </div>
+<div id="select-variables-of-interest" class="section level3">
+<h3>Select variables of interest</h3>
+<p>Weather Event * EVTYPE Personal and Health Impact * FATALITIES * INJURIES Economic Impact * PROPDMG * PROPDMGEXP * CROPDMG * CROPDMGEXP</p>
+<pre class="r"><code>StormDataAnalysis &lt;- subset(StormData, select=c(EVTYPE, FATALITIES, INJURIES, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP))
+head(StormDataAnalysis)</code></pre>
+<pre><code>##    EVTYPE FATALITIES INJURIES PROPDMG PROPDMGEXP CROPDMG CROPDMGEXP
+## 1 TORNADO          0       15    25.0          K       0           
+## 2 TORNADO          0        0     2.5          K       0           
+## 3 TORNADO          0        2    25.0          K       0           
+## 4 TORNADO          0        2     2.5          K       0           
+## 5 TORNADO          0        2     2.5          K       0           
+## 6 TORNADO          0        6     2.5          K       0</code></pre>
+<pre class="r"><code>tail(StormDataAnalysis)</code></pre>
+<pre><code>##                EVTYPE FATALITIES INJURIES PROPDMG PROPDMGEXP CROPDMG CROPDMGEXP
+## 902292 WINTER WEATHER          0        0       0          K       0          K
+## 902293      HIGH WIND          0        0       0          K       0          K
+## 902294      HIGH WIND          0        0       0          K       0          K
+## 902295      HIGH WIND          0        0       0          K       0          K
+## 902296       BLIZZARD          0        0       0          K       0          K
+## 902297     HEAVY SNOW          0        0       0          K       0          K</code></pre>
+</div>
+<div id="determine-the-total-number-of-injuries-and-fatalities-per-weather-event-by-creating-a-separate-data-frames" class="section level3">
+<h3>Determine the total number of Injuries and fatalities per weather event by creating a separate data frames</h3>
+<pre class="r"><code>TotalFatalities &lt;- StormDataAnalysis %&gt;% group_by(EVTYPE) %&gt;% summarise(Fatalities=sum(FATALITIES, na.rm = TRUE))</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre class="r"><code>TotalFatalities &lt;- TotalFatalities %&gt;% arrange(desc(Fatalities))
+dim(TotalFatalities)</code></pre>
+<pre><code>## [1] 985   2</code></pre>
+<pre class="r"><code>head(TotalFatalities, n=10)</code></pre>
+<pre><code>## # A tibble: 10 x 2
+##    EVTYPE         Fatalities
+##    &lt;chr&gt;               &lt;dbl&gt;
+##  1 TORNADO              5633
+##  2 EXCESSIVE HEAT       1903
+##  3 FLASH FLOOD           978
+##  4 HEAT                  937
+##  5 LIGHTNING             816
+##  6 TSTM WIND             504
+##  7 FLOOD                 470
+##  8 RIP CURRENT           368
+##  9 HIGH WIND             248
+## 10 AVALANCHE             224</code></pre>
+<pre class="r"><code>TotalInjuries &lt;- StormDataAnalysis %&gt;% group_by(EVTYPE) %&gt;% summarise(Injuries=sum(INJURIES, na.rm = TRUE))</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre class="r"><code>TotalInjuries &lt;- TotalInjuries %&gt;% arrange(desc(Injuries))
+dim(TotalInjuries)</code></pre>
+<pre><code>## [1] 985   2</code></pre>
+<pre class="r"><code>head(TotalInjuries, n=10)</code></pre>
+<pre><code>## # A tibble: 10 x 2
+##    EVTYPE            Injuries
+##    &lt;chr&gt;                &lt;dbl&gt;
+##  1 TORNADO              91346
+##  2 TSTM WIND             6957
+##  3 FLOOD                 6789
+##  4 EXCESSIVE HEAT        6525
+##  5 LIGHTNING             5230
+##  6 HEAT                  2100
+##  7 ICE STORM             1975
+##  8 FLASH FLOOD           1777
+##  9 THUNDERSTORM WIND     1488
+## 10 HAIL                  1361</code></pre>
+</div>
+<div id="determine-the-total-economical-impact-for-each-weather-event-in-millions-of-dollars-and-creating-separate-data-frames-for-property-damage-and-crop-damage" class="section level3">
+<h3>Determine the total economical impact for each weather event in Millions of Dollars and creating separate data frames for property damage and crop damage</h3>
+<pre class="r"><code>### Convert units from &quot;letters&quot; to dollars
+ 
+StormDataAnalysis$PROPDMGEXP &lt;- gsub(is.na(StormDataAnalysis$PROPDMGEXP), 0, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE) # NA&#39;s considered as 0 dollars</code></pre>
+<pre><code>## Warning in gsub(is.na(StormDataAnalysis$PROPDMGEXP), 0,
+## StormDataAnalysis$PROPDMGEXP, : argument &#39;pattern&#39; has length &gt; 1 and only the
+## first element will be used</code></pre>
+<pre class="r"><code>StormDataAnalysis$PROPDMGEXP &lt;- gsub(&quot;&quot;, 1, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE) # No letter considered as  dollars
+StormDataAnalysis$PROPDMGEXP &lt;- gsub(&quot;[Mm]&quot;, 1e+06, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$PROPDMGEXP &lt;- gsub(&quot;[Kk]&quot;, 1000, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$PROPDMGEXP &lt;- gsub(&quot;[Bb]&quot;, 1e+09, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$PROPDMGEXP &lt;- as.numeric(StormDataAnalysis$PROPDMGEXP)</code></pre>
+<pre><code>## Warning: NAs introduced by coercion</code></pre>
+<pre class="r"><code>StormDataAnalysis$CROPDMGEXP &lt;- gsub(is.na(StormDataAnalysis$CROPDMGEXP), 0, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE) # NA&#39;s considered as 0 dollars</code></pre>
+<pre><code>## Warning in gsub(is.na(StormDataAnalysis$CROPDMGEXP), 0,
+## StormDataAnalysis$CROPDMGEXP, : argument &#39;pattern&#39; has length &gt; 1 and only the
+## first element will be used</code></pre>
+<pre class="r"><code>StormDataAnalysis$CROPDMGEXP &lt;- gsub(&quot;&quot;, 1, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE) # No letter considered as  dollars
+StormDataAnalysis$CROPDMGEXP &lt;- gsub(&quot;[Mm]&quot;, 1e+06, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$CROPDMGEXP &lt;- gsub(&quot;[Kk]&quot;, 1000, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$CROPDMGEXP &lt;- gsub(&quot;[Bb]&quot;, 1e+09, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$CROPDMGEXP &lt;- as.numeric(StormDataAnalysis$CROPDMGEXP)</code></pre>
+<pre><code>## Warning: NAs introduced by coercion</code></pre>
+</div>
 </div>
 
 
