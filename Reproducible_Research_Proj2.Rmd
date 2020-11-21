@@ -34,3 +34,20 @@ head(StormData)
 str(StormData)
 
 ```
+
+### Select variableS of interest
+Weather Event
+        * EVTYPE
+Personal and Health Impact
+        * FATALITIES
+        * INJURIES
+Economic Impact
+        * PROPDMG
+        * PROPDMGEXP
+        * CROPDMG
+        * CROPDMGEXP
+```{r select variables}
+StormDataAnalysis <- subset(StormData, select=c(EVTYPE, FATALITIES, INJURIES, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP))
+head(StormDataAnalysis)
+```
+
