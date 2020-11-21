@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "Reproducible_Research_Proj2"
 author: "JESTO"
@@ -205,3 +206,195 @@ After evaluating the bar plots and analyzing the data we can conclude the follow
 
 
 
+=======
+---
+title: "Reproducible_Research_Proj2"
+author: "JESTO"
+date: "11/20/2020"
+output: html_document
+---
+
+Impact of severe weather events on people and the economy of the United States
+========================================================================================================
+
+
+## Summary  
+
+Storms and other severe weather events can cause both public health and economic problems for communities and municipalities. Many severe events can result in fatalities, injuries, and property damage, and preventing such outcomes to the extent possible is a key concern.  
+  
+This project involves exploring the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. This database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.  
+
+## Data  
+
+The data for this assignment come in the form of a comma-separated-value file compressed via the bzip2 algorithm to reduce its size. You can download the file from the course web site:  
+  
+[Storm Data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2)  
+  
+There is also some documentation of the database available. Here you will find how some of the variables are constructed/defined.  
+
+[National Weather Service Storm Data Documentation](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf)  
+[National Climatic Data Center Storm Events FAQ](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2FNCDC%20Storm%20Events-FAQ%20Page.pdf)  
+The events in the database start in the year 1950 and end in November 2011. In the earlier years of the database there are generally fewer events recorded, most likely due to a lack of good records. More recent years should be considered more complete.  
+
+## Data Manipulation and Analysis
+
+### Need to load the necessary packages.  knirt, dplyr and ggplot2 
+
+```{r packakes, echo=TRUE}
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+```
+
+### Remove Date Warnings - Global Option
+
+
+```{r , cache=TRUE, echo=TRUE}
+knitr::opts_chunk$set(warning=FALSE)
+```
+
+
+### Down load the data from web site 
+  
+The data is download from the provided link in wokring directory  
+
+```{r loading data, cache=TRUE, echo=TRUE}
+stormdataURL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+download.file(stormdataURL, destfile="./stormdataset.csv")
+list.files("./")
+datestromdatadownload <- date()
+datestromdatadownload
+```
+
+### Read the data set and inspect the data set  
+
+Data set is read and a Data Set is created with the raw data  
+
+```{r read data set, cache=TRUE, echo=TRUE}
+StormData <- read.csv("./stormdataset.csv", sep = ",", header = TRUE)
+dim(StormData)
+head(StormData)
+str(StormData)
+
+```
+
+### Select variables of interest 
+
+* Weather Event, such as Tornadoes, Floods    
+        + EVTYPE    
+* Personal and Health Impact  
+        + FATALITIES      
+        + INJURIES    
+* Economic Impact  
+        + PROPDMG     
+        + PROPDMGEXP      
+        + CROPDMG    
+        + CROPDMGEXP    
+        
+```{r select variables, cache=TRUE, echo=TRUE}
+StormDataAnalysis <- subset(StormData, select=c(EVTYPE, FATALITIES, INJURIES, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP))
+head(StormDataAnalysis)
+tail(StormDataAnalysis)
+```
+
+### Four data sets will be created, one for each impact; Fatalities, Injuries, Property Damage, and Crop Damage.
+
+Determine the total number of Injuries and fatalities per weather event by creating a separate data frames  
+
+```{r total fatalities and injuries, cache=TRUE, echo=TRUE}
+TotalFatalities <- StormDataAnalysis %>% group_by(EVTYPE) %>% summarise(Fatalities=sum(FATALITIES, na.rm = TRUE))
+TotalFatalities <- TotalFatalities %>% arrange(desc(Fatalities))
+TotalFatalities <- TotalFatalities[1:10, ]
+dim(TotalFatalities)
+head(TotalFatalities, n=10)
+TopFatalityEvent <- TotalFatalities[1,1]
+TopFatalityEvent
+
+TotalInjuries <- StormDataAnalysis %>% group_by(EVTYPE) %>% summarise(Injuries=sum(INJURIES, na.rm = TRUE))
+TotalInjuries <- TotalInjuries %>% arrange(desc(Injuries))
+TotalInjuries <- TotalInjuries[1:10, ]
+dim(TotalInjuries)
+head(TotalInjuries, n=10)
+TopInjuryEvent <- TotalInjuries[1,1]
+TopInjuryEvent
+```
+
+Determine the total economical impact for each weather event in Millions of Dollars and creating separate data frames for property damage and crop damage  
+
+```{r , cache=TRUE, echo=TRUE}
+### Convert units from "letters" to dollars
+ 
+StormDataAnalysis$PROPDMGEXP <- gsub(is.na(StormDataAnalysis$PROPDMGEXP), 0, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE) # NA's considered as 0 dollars
+StormDataAnalysis$PROPDMGEXP <- gsub("[Mm]", 1e+06, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$PROPDMGEXP <- gsub("[Kk]", 1000, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$PROPDMGEXP <- gsub("[Bb]", 1e+09, StormDataAnalysis$PROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$PROPDMGEXP <- as.numeric(StormDataAnalysis$PROPDMGEXP)
+StormDataAnalysis$CROPDMGEXP <- gsub(is.na(StormDataAnalysis$CROPDMGEXP), 0, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE) # NA's considered as 0 dollars
+StormDataAnalysis$CROPDMGEXP <- gsub("[Mm]", 1e+06, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$CROPDMGEXP <- gsub("[Kk]", 1000, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$CROPDMGEXP <- gsub("[Bb]", 1e+09, StormDataAnalysis$CROPDMGEXP, ignore.case = TRUE)
+StormDataAnalysis$CROPDMGEXP <- as.numeric(StormDataAnalysis$CROPDMGEXP)
+
+## Create two new variable for the total damage in property and crops in millions of dollars
+StormDataAnalysis <- mutate(StormDataAnalysis, TotalPropDMG=PROPDMG*PROPDMGEXP/1e+06, TotalCropDMG=CROPDMG*CROPDMGEXP/1e+06)
+
+##Create two data frames for total damage per weather event
+TotalPropDMG <- StormDataAnalysis %>% group_by(EVTYPE) %>% summarise(PropertyDamage=sum(TotalPropDMG, na.rm = TRUE))
+TotalPropDMG <- TotalPropDMG %>% arrange(desc(PropertyDamage))
+TotalPropDMG <- TotalPropDMG[1:10, ]
+head(TotalPropDMG)
+TopPropDMGEvent <- TotalPropDMG[1,1]
+TopPropDMGEvent
+
+TotalCropDMG <- StormDataAnalysis %>% group_by(EVTYPE) %>% summarise(CropDamage=sum(TotalCropDMG, na.rm = TRUE))                                                          
+TotalCropDMG <- TotalCropDMG %>% arrange(desc(CropDamage))
+TotalCropDMG <- TotalCropDMG[1:10, ]
+head(TotalCropDMG)
+TopCropDMGEvent <- TotalCropDMG[1,1]
+TopCropDMGEvent
+
+```
+
+## Results  
+
+### Plots  
+  
+Bar plots will be used to identify the effect of extreme weather events on people (Fatalities and Injuries), and th economy (Property and Crop Damage).  
+
+First bar plots show the 10 largest impact on people by different extreme weather events 
+  
+Second bar plots show the 10 largest impact on the property and crop by different extreme weather events.  
+
+```{r , cache=TRUE, echo=TRUE}
+## Fatalities Bar Plot setup
+FatalityPlot <- ggplot(data=TotalFatalities, aes(x=reorder(EVTYPE,-Fatalities), y=Fatalities, fill=EVTYPE)) + geom_bar(stat="identity", show.legend=F) + labs(title="Fatalities of Top 10 Events", x="Events", y="Total Fatalities") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+## Injuries Bar Plot setup
+InjuryPlot <- ggplot(data=TotalInjuries, aes(x=reorder(EVTYPE,-Injuries), y=Injuries, fill=EVTYPE)) + geom_bar(stat="identity", show.legend=F) + labs(title="Injuries of Top 10 Events", x="Events", y="Total Fatalities") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+## Fatalities and Injuries Graph 
+grid.arrange(FatalityPlot, InjuryPlot, ncol = 2)
+
+## Property Damage Plot setup
+PropDMGPlot <- ggplot(data=TotalPropDMG, aes(x=reorder(EVTYPE,-PropertyDamage), y=PropertyDamage, fill=EVTYPE)) + geom_bar(stat="identity", show.legend=F) + labs(title="Property Damage", x="Events", y="Total Property Damage, Millions of Dollars") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+## Crop Damage Plot setup
+CropDMGPlot <- ggplot(data=TotalCropDMG, aes(x=reorder(EVTYPE,-CropDamage), y=CropDamage, fill=EVTYPE))+ geom_bar(stat="identity", show.legend=F) + labs(title="Crop Damage", x="Events", y="Total Crop Damage, Millions of Dollars") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+## Property and Crop Damage Graph 
+grid.arrange(PropDMGPlot, CropDMGPlot, ncol = 2)
+```
+
+### Summary of the results  
+
+After evaluating the bar plots and analyzing the data we can conclude the following:  
+* The Weather Event that caused more fatalities between 1995 and 2011 is: **Tornado**        
+* The Weather Event that caused more Injuries between 1995 and 2011 is: **Tornado**  
+* The Weather Event that caused more Property Loses between 1995 and 2011 is: **Flood**  
+* The Weather Event that caused more Crop Loses between 1995 and 2011 is: **Drought**  
+
+
+
+
+>>>>>>> 1a55ca5de80320050ecde360f2310be5e7e5bf44
