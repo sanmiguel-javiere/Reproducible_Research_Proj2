@@ -16,3 +16,21 @@ library(dplyr)
 library(ggplot2)
 ```
 
+### Down load the data from web site, read the cvs file 
+
+```{r loading data, cache=TRUE}
+stormdataURL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+download.file(stormdataURL, destfile="./stormdataset.csv")
+list.files("./")
+datestromdatadownload <- date()
+datestromdatadownload
+```
+
+### Read the data set and inspect the data set
+```{r read data set, cache=TRUE}
+StormData <- read.csv("./stormdataset.csv", sep = ",", header = TRUE)
+dim(StormData)
+head(StormData)
+str(StormData)
+
+```
