@@ -180,10 +180,10 @@ grid.arrange(PropDMGPlot, CropDMGPlot, ncol = 2)
 ### Summary of the results  
 
 After evaluating the bar plots and analyzing the data we can conclude the following:  
-* The Weather Event with more fatalities is: `TopFatalityEvent`      
-* The Weather Event with more Injuries is: `TopInjuryEvent`     
-* The Weather Event with more Property Loses is: `TopPropDMGEvent`    
-* The Weather Event with more Crop Loses is: `TopCropDMGEvent`    
+* The Weather Event with more fatalities between 1995 and 2011 is: `TopFatalityEvent`      
+* The Weather Event with more Injuries between 1995 and 2011 is: `TopInjuryEvent`     
+* The Weather Event with more Property Loses between 1995 and 2011 is: `TopPropDMGEvent`    
+* The Weather Event with more Crop Loses between 1995 and 2011 is: `TopCropDMGEvent`    
 
 
 
