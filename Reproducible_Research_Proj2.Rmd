@@ -70,6 +70,21 @@ str(StormData)
 
 ```
 
+### Select Data that is between 1995 and 2011
+
+Create a new variable called YEAR
+
+```{r year, cache=TRUE, echo=TRUE}
+
+StormData$YEAR <- as.numeric(format(as.Date(StormData$BGN_DATE, format = "%m/%d/%Y %H:%M:%S"), "%Y"))
+```
+
+Select Data only between 1995 and 2011
+
+```{ r select 1995 to 2011, cache=TRUE, echo=TRUE}
+StormData <- StormData %>% filter(YEAR>1994, YEAR<2012)
+```
+
 ### Select variables of interest 
 
 * Weather Event, such as Tornadoes, Floods    
